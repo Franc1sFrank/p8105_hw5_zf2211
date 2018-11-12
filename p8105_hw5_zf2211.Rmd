@@ -119,3 +119,18 @@ unsolved_data %>%
   knitr::kable()
 ```
 
+
+
+```{r}
+# prop.test Baltimore
+prop_Ba <-  
+  prop.test(x = unsolved_data$unsolved[unsolved_data$city_state == "Baltimore,MD"], 
+            n = unsolved_data$total[unsolved_data$city_state == "Baltimore,MD"],
+            alternative = "two.sided") %>% 
+  broom::tidy() 
+
+# pull the estimated proportion and confidence intervals 
+prop_Ba["estimate"]
+cbind(prop_Ba["conf.low"], prop_Ba["conf.high"])
+```
+
