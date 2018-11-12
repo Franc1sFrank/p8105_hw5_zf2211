@@ -71,3 +71,28 @@ On week 1, the mean observation values for the control group was `r round(mean(f
 
 
 
+
+
+
+
+### Problem 2
+
+
+```{r}
+# load homicide data
+homicide_data <- 
+  read_csv("./data/homicide-data.csv") %>% 
+  janitor::clean_names()
+```
+
+`homicide-data.csv` records `r dim(homicide_data)[1]` cases of homicide across `r dim(distinct(homicide_data, city))[1]` in `r dim(distinct(homicide_data, state))[1]` different states. The observations are `UID`, `reported_date`, victim's name, race, age and sex; geographic locations of the case, disposition of each case("Closed by arrest", "Closed without arrest" or "Open/No arrest").
+
+
+
+```{r}
+#Create `city_state` variable
+homicide_data <- 
+  homicide_data %>% 
+  mutate(city_state = str_c(city, ",", state)) %>% 
+  select(-city, -state)
+```
