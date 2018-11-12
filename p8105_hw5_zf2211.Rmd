@@ -94,5 +94,28 @@ homicide_data <-
 homicide_data <- 
   homicide_data %>% 
   mutate(city_state = str_c(city, ",", state)) %>% 
-  select(-city, -state)
+  select(-city, -state) # tidy the table
 ```
+
+```{r}
+# summarize within cities to obtain the total number of homicides
+homicide_data <- 
+  homicide_data %>% 
+  group_by(city_state) %>% 
+  mutate(total = length(uid))
+
+# the number of unsolved = total - solved
+homicide_data <- 
+  homicide_data %>% 
+  filter(disposition == "Closed by arrest") %>% 
+  group_by(city_state) %>% 
+  mutate(unsolved = total - length(uid))
+
+# Table that shows total and unsolved cases
+unsolved_data <- 
+  homicide_data %>% 
+  distinct(city_state, unsolved, total)
+unsolved_data %>% 
+  knitr::kable()
+```
+
