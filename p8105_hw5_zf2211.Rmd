@@ -65,3 +65,9 @@ data %>%
        y = "value of observations"
        )
 ```
+
+On week 1, the mean observation values for the control group was `r round(mean(filter(data, group == "con", week == 1)$value), digits = 3)` and that of the experimental group was `r round(mean(filter(data, group == "exp", week == 1)$value), digits = 3)`. Though both the control arm and the experimental arm started off around 1, values in the experimental arm showed a significant increase over the 8-week course and ended up around `r round(mean(filter(data, group == "exp", week == 8)$value), digits = 3)` on average, while the observation values of the control arm stayed relatively steady over time around `r round(mean(filter(data, group == "con", week == 8)$value), digits = 3)`. 
+
+
+
+
