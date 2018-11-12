@@ -11,15 +11,14 @@ library(tidyverse)
 ```
 
 ```{r}
-# create a dataframe containing all file names
+# conbine all file names into one dataframe
 file = as.data.frame(list.files(path = "./data")[1:20]) 
 # rename column
-colnames(file)[1] = 'path' 
-
+colnames(file)[1] = 'path'
 ```
 
 ```{r}
-# create a function to read in data for each subject 
+# create a function to read data one by one 
 read_files = function (path) {
   df = 
     read.csv(str_c("./data/", path)) %>% 
@@ -28,4 +27,29 @@ read_files = function (path) {
   df
 }
 ```
+
+```{r}
+# save the results as new variables in the dataframe
+data <- 
+  map(file$path, read_files) %>% 
+  bind_rows()
+data <- 
+bind_cols(file, data)
+```
+
+```{r}
+## tidy dataset
+# transform the dataframe in one colume
+# clean variable names
+data <-  
+  data %>% 
+  gather(key = week, value = value, week_1:week_8) %>% 
+  separate(path, into = c("group", "appendix"), sep = "_") %>% 
+  separate(appendix, into = c("ID", "remove_1"), sep = 2 ) %>% 
+  separate(week, into = c("remove_2", "week"), sep = "_") %>% 
+  select(-remove_1, -remove_2) %>% 
+  mutate(group = as.factor(group)) %>% 
+  arrange(group, ID, week)
+```
+
 
