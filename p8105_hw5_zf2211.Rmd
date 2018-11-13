@@ -3,7 +3,10 @@ title: "p8105_hw5_zf2211"
 author: "Francis"
 date: "11/6/2018"
 output: github_document
+editor_options: 
+  chunk_output_type: console
 ---
+
 ### Problem 1
 ```{r}
 #load packages
@@ -60,10 +63,11 @@ data %>%
   ggplot(aes(x = as.numeric(week), y = value, color = ID)) +
   geom_line() +
   facet_grid(.~group) +
-  labs(title = "Observations on each subject over 8 weeks", 
+  labs(title = "Observations on each subject", 
        x = "week",
-       y = "value of observations"
-       )
+       y = "value"
+       ) +
+  theme(plot.title = element_text(hjust = 0.5))
 ```
 
 On week 1, the mean observation values for the control group was `r round(mean(filter(data, group == "con", week == 1)$value), digits = 3)` and that of the experimental group was `r round(mean(filter(data, group == "exp", week == 1)$value), digits = 3)`. Though both the control arm and the experimental arm started off around 1, values in the experimental arm showed a significant increase over the 8-week course and ended up around `r round(mean(filter(data, group == "exp", week == 8)$value), digits = 3)` on average, while the observation values of the control arm stayed relatively steady over time around `r round(mean(filter(data, group == "con", week == 8)$value), digits = 3)`. 
@@ -98,7 +102,7 @@ homicide_data <-
 ```
 
 ```{r}
-# summarize within cities to obtain the total number of homicides
+# obtain total number of homicides
 homicide_data <- 
   homicide_data %>% 
   group_by(city_state) %>% 
@@ -111,10 +115,12 @@ homicide_data <-
   group_by(city_state) %>% 
   mutate(unsolved = total - length(uid))
 
-# Table that shows total and unsolved cases
+# total and unsolved cases
 unsolved_data <- 
   homicide_data %>% 
-  distinct(city_state, unsolved, total)
+  distinct(city_state, unsolved, total) %>% 
+  as.data.frame()  #make into dataframe
+# draw table
 unsolved_data %>% 
   knitr::kable()
 ```
@@ -123,14 +129,48 @@ unsolved_data %>%
 
 ```{r}
 # prop.test Baltimore
-prop_Ba <-  
+prop_Ba <-  # save as R object 
   prop.test(x = unsolved_data$unsolved[unsolved_data$city_state == "Baltimore,MD"], 
-            n = unsolved_data$total[unsolved_data$city_state == "Baltimore,MD"],
-            alternative = "two.sided") %>% 
+            n = unsolved_data$total[unsolved_data$city_state == "Baltimore,MD"]) %>% 
   broom::tidy() 
 
+
 # pull the estimated proportion and confidence intervals 
-prop_Ba["estimate"]
-cbind(prop_Ba["conf.low"], prop_Ba["conf.high"])
+cbind(prop_Ba["estimate"], prop_Ba["conf.low"], prop_Ba["conf.high"])
+```
+This is saved R object `r prop_Ba`
+
+
+```{r}
+# Create function to prop.test for city
+prop_test = function (city) {
+  result =  
+    prop.test(x = unsolved_data$unsolved[unsolved_data$city_state == city],
+              n = unsolved_data$total[unsolved_data$city_state == city]) %>% 
+    broom::tidy()
+} 
+```
+
+
+```{r}
+# create tidy dataframe
+unsolved_data <- 
+  unsolved_data %>% 
+  mutate(prop_test = map(unsolved_data$city_state, prop_test)) %>% 
+  unnest()
+```
+
+
+```{r height = 10, width = 10}
+# plot the estimates and CIs for each city
+unsolved_data %>% 
+  mutate(city_state = fct_reorder(city_state, estimate)) %>%  #reorder city in a rank of estimates
+  arrange(city_state) %>% 
+  ggplot(aes(x = estimate, y = city_state)) +
+  geom_point() +
+  geom_errorbarh(aes(xmin = conf.low, xmax = conf.high)) +
+  labs(title = "Estimates and CIs for each city", x = "Estimated Proportions and CIs", y = "City") +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5)) 
 ```
 
