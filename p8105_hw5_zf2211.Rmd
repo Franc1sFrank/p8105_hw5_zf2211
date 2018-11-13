@@ -138,7 +138,8 @@ prop_Ba <-  # save as R object
 # pull the estimated proportion and confidence intervals 
 cbind(prop_Ba["estimate"], prop_Ba["conf.low"], prop_Ba["conf.high"])
 ```
-This is saved R object `r prop_Ba`
+This is saved R object:  
+`r prop_Ba`
 
 
 ```{r}
@@ -161,15 +162,16 @@ unsolved_data <-
 ```
 
 
-```{r}
+```{r height = 30, width = 10}
 # plot the estimates and CIs for each city
 unsolved_data %>% 
   mutate(city_state = fct_reorder(city_state, estimate)) %>%  #reorder city in a rank of estimates
   arrange(city_state) %>% 
-  ggplot(aes(x = estimate, y = city_state)) +
+  ggplot(aes(x = city_state, y = estimate)) +
   geom_point() +
-  geom_errorbarh(aes(xmin = conf.low, xmax = conf.high)) +
-  labs(title = "Estimates and CIs for each city", x = "Estimated Proportions and CIs", y = "City") +
-  theme(plot.title = element_text(hjust = 0.5)) 
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high)) +
+  labs(title = "Estimates and CIs for each city", x = "City", y = "Estimated Proportions and CIs") +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = .5), axis.text.x = element_text(angle = 90, hjust = .5)) 
 ```
 
